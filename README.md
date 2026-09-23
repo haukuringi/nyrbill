@@ -1,5 +1,8 @@
 # Nýrbíll.is
 
+**Lifandi frumgerð:** <https://haukuringi.github.io/nyrbill/> (GitHub Pages –
+uppfærist sjálfkrafa við hvert `git push`).
+
 Vefsíða sem sýnir nýja bíla á söluskrá á Íslandi, með verðlistum og samanburði.
 Hrein HTML/CSS/JavaScript – engin bygging, engin gagnagrunnur, engin bakendi.
 Gögnin koma úr `bilagogn.xlsx` og eru breytt í JSON-skrár sem síðan sækir.
