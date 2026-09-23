@@ -1,0 +1,466 @@
+/* Einfalt, hreint útlit – mobile-first. Litir og stærðir eru breytur (CSS
+   custom properties) svo auðvelt sé að stilla þær á einum stað. */
+
+:root {
+  --bakgrunnur: #f8f7f3;
+  --yfirbord: #ffffff;
+  --yfirbord-2: #fbfaf7;
+  --texti: #18181b;
+  --texti-dof: #6b6b6f;
+  --texti-daufur: #9a9a9c;
+  --lina: #e7e4dc;
+  --lina-dekkri: #d8d4c8;
+  --litur: #4f46e5;
+  --litur-dekkri: #4338ca;
+  --litur-dof: #eeecfc;
+  --graent: #0f7a42;
+  --graent-dof: #e8f7ee;
+  --graent-lina: #bfe8cf;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --skygging: 0 1px 2px rgba(20, 18, 10, 0.05), 0 1px 1px rgba(20, 18, 10, 0.04);
+  --skygging-svif: 0 10px 24px -8px rgba(20, 18, 10, 0.14), 0 2px 6px rgba(20, 18, 10, 0.06);
+  --hrif: 150ms ease;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bakgrunnur);
+  color: var(--texti);
+  font-family: "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "tnum" 1;
+  line-height: 1.45;
+  padding-bottom: 76px; /* svigrúm fyrir samanburðarbox */
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--litur); text-decoration: none; }
+a:hover { color: var(--litur-dekkri); text-decoration: underline; }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--litur);
+  outline-offset: 2px;
+}
+
+.vefsvaedi {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+header.siduhaus {
+  border-bottom: 1px solid var(--lina);
+  background: var(--yfirbord);
+}
+
+header.siduhaus .vefsvaedi { padding-top: 22px; padding-bottom: 22px; }
+
+header.siduhaus h1 {
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 0 0 4px;
+}
+
+header.siduhaus h1 a { color: var(--texti); }
+
+header.siduhaus p {
+  margin: 0;
+  color: var(--texti-dof);
+  font-size: 0.94rem;
+}
+
+/* --- Stýringar (leit, síur, röðun) --- */
+
+.sia-pallbord {
+  background: var(--yfirbord-2);
+  border: 1px solid var(--lina);
+  border-radius: var(--radius);
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.styringar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.styringar input[type="text"],
+.styringar select {
+  font-size: 0.95rem;
+  padding: 9px 12px;
+  border: 1px solid var(--lina-dekkri);
+  border-radius: var(--radius-sm);
+  background: var(--yfirbord);
+  color: var(--texti);
+  transition: border-color var(--hrif);
+}
+
+.styringar input[type="text"] {
+  flex: 1 1 220px;
+}
+
+.sia-hopur {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sia-hopur select,
+.sia-hopur input {
+  font-size: 0.87rem;
+  padding: 7px 10px;
+  border: 1px solid var(--lina-dekkri);
+  border-radius: var(--radius-sm);
+  background: var(--yfirbord);
+  color: var(--texti);
+  transition: border-color var(--hrif);
+}
+
+.styringar input:hover,
+.styringar select:hover,
+.sia-hopur input:hover,
+.sia-hopur select:hover {
+  border-color: var(--texti-daufur);
+}
+
+label.rofi {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.88rem;
+  color: var(--texti-dof);
+  cursor: pointer;
+  user-select: none;
+}
+
+label.rofi input { accent-color: var(--litur); width: 15px; height: 15px; }
+
+.tal-fjolda {
+  color: var(--texti-dof);
+  font-size: 0.88rem;
+  margin: 0 0 12px;
+}
+
+/* --- Bílaspjöld (grid) --- */
+
+.bilagrind {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media (min-width: 620px) {
+  .bilagrind { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 920px) {
+  .bilagrind { grid-template-columns: repeat(3, 1fr); }
+}
+
+.spjald {
+  display: block;
+  background: var(--yfirbord);
+  border: 1px solid var(--lina);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--skygging);
+  color: var(--texti);
+  transition: transform var(--hrif), box-shadow var(--hrif), border-color var(--hrif);
+}
+
+.spjald:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: var(--skygging-svif);
+  border-color: var(--lina-dekkri);
+}
+
+.spjald h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
+}
+
+.spjald .undirtitill {
+  color: var(--texti-dof);
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.merkjahopur {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.merki-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.76rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--litur-dof);
+  color: var(--litur-dekkri);
+}
+
+.merki-badge.orka { background: var(--graent-dof); color: var(--graent); }
+
+.spjald .verd {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.spjald .verd-styrkur {
+  font-size: 0.86rem;
+  color: var(--graent);
+  margin-top: 3px;
+}
+
+.tomt-skilabod {
+  padding: 32px 20px;
+  text-align: center;
+  color: var(--texti-dof);
+  background: var(--yfirbord-2);
+  border: 1px dashed var(--lina-dekkri);
+  border-radius: var(--radius);
+}
+
+/* --- Gerðarsíða: tafla með útfærslum --- */
+
+.taflubox {
+  overflow-x: auto;
+  background: var(--yfirbord);
+  border: 1px solid var(--lina);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--skygging);
+}
+
+table.utfaerslutafla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+table.utfaerslutafla th,
+table.utfaerslutafla td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--lina);
+  text-align: left;
+}
+
+table.utfaerslutafla thead th {
+  background: var(--yfirbord-2);
+  color: var(--texti-dof);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  position: sticky;
+  top: 0;
+}
+
+table.utfaerslutafla tbody tr:last-child td { border-bottom: none; }
+table.utfaerslutafla tbody tr:hover { background: var(--yfirbord-2); }
+
+.best-gildi { font-weight: 700; color: var(--graent); }
+
+.smaknappur {
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--litur);
+  background: var(--litur-dof);
+  color: var(--litur-dekkri);
+  cursor: pointer;
+  transition: background var(--hrif), color var(--hrif);
+}
+
+.smaknappur:hover { background: var(--litur); color: #fff; }
+
+.smaknappur[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.smaknappur.valid { background: var(--litur); color: #fff; }
+
+.heimild-lina {
+  color: var(--texti-daufur);
+  font-size: 0.82rem;
+  margin: 2px 0 0;
+}
+
+/* --- Samanburðarsíða --- */
+
+.samanburdargrind {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .samanburdargrind { grid-template-columns: repeat(var(--fjoldi, 2), 1fr); }
+}
+
+.samanburdarkort {
+  background: var(--yfirbord);
+  border: 1px solid var(--lina);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--skygging);
+}
+
+.samanburdarkort h3 { margin: 0 0 4px; font-size: 1.05rem; font-weight: 700; }
+
+.samanburdarkort .undirtitill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--texti-dof);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.samanburdarkort dl {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.samanburdarkort dt {
+  color: var(--texti-daufur);
+  font-size: 0.73rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 10px;
+}
+
+.samanburdarkort dd {
+  margin: 1px 0 0;
+}
+
+.samanburdarkort dd.best-gildi {
+  color: var(--graent);
+  font-weight: 700;
+}
+
+.samanburdarkort dd.best-gildi::before {
+  content: "✓ ";
+}
+
+/* --- Sjáanlegt samanburðarbox neðst á öllum síðum --- */
+
+.samanburdarbox[hidden] { display: none; }
+
+.samanburdarbox {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #101014;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.88rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.18);
+  z-index: 20;
+}
+
+.samanburdarbox .flisar {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.samanburdarbox .flis {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 4px 6px 4px 12px;
+  white-space: nowrap;
+}
+
+.samanburdarbox .flis button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 999px;
+  transition: background var(--hrif);
+}
+
+.samanburdarbox .flis button:hover { background: rgba(255, 255, 255, 0.2); }
+
+.samanburdarbox .berasaman {
+  background: #fff;
+  color: var(--texti);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform var(--hrif);
+}
+
+.samanburdarbox .berasaman:hover:not([disabled]) { transform: translateY(-1px); }
+
+.samanburdarbox .berasaman[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* --- Fótur --- */
+
+footer.sidufotur {
+  color: var(--texti-daufur);
+  font-size: 0.82rem;
+  border-top: 1px solid var(--lina);
+  margin-top: 28px;
+  padding-top: 16px;
+}
+
+.rafbilastyrkur-skyring {
+  background: var(--graent-dof);
+  border: 1px solid var(--graent-lina);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  color: #0c4a2c;
+  margin-bottom: 16px;
+}
+
+.villubox {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
