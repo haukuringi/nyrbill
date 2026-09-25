@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { kronur } from "@/lib/snid";
 import { flokkurHeiti, orkugjafiHeiti } from "@/lib/heiti";
+import { FlokkurIcon } from "@/components/flokkur-icon";
 import type { Gerd } from "@/lib/types";
 
 export function BillCard({ gerd }: { gerd: Gerd }) {
@@ -17,6 +18,12 @@ export function BillCard({ gerd }: { gerd: Gerd }) {
         style={{ background: "linear-gradient(180deg, var(--hero-via), var(--hero-glow-2))" }}
         aria-hidden
       />
+      <div
+        className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
+        style={{ background: "linear-gradient(135deg, var(--hero-via), var(--hero-glow-2))" }}
+      >
+        <FlokkurIcon flokkur={gerd.flokkur} className="h-6 w-6 text-white" />
+      </div>
       <h2 className="text-xl font-extrabold tracking-tight">
         {gerd.merki} {gerd.gerd}
       </h2>
