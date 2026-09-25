@@ -1,11 +1,16 @@
 # Nýrbíll.is
 
-**Lifandi frumgerð:** <https://haukuringi.github.io/nyrbill/> (GitHub Pages –
-uppfærist sjálfkrafa við hvert `git push`).
+**Lifandi síða:** <https://nyrbill.vercel.app> (Vercel – byggir og uppfærir
+sjálfkrafa við hvert `git push` á `main`).
 
-Vefsíða sem sýnir nýja bíla á söluskrá á Íslandi, með verðlistum og samanburði.
-Hrein HTML/CSS/JavaScript – engin bygging, engin gagnagrunnur, engin bakendi.
-Gögnin koma úr `bilagogn.xlsx` og eru breytt í JSON-skrár sem síðan sækir.
+Vefsíða sem sýnir nýja bíla á söluskrá á Íslandi, með verðlistum og
+samanburði. Byggð í Next.js + Tailwind CSS + shadcn/ui. Gögnin koma úr
+`bilagogn.xlsx` og eru breytt í JSON-skrár sem síðan les.
+
+> Fyrsta útgáfa af þessari síðu var hrein HTML/CSS/JavaScript (engin
+> bygging). Hún var endurbyggð í Next.js til að nýta tilbúnar shadcn/21st.dev
+> einingar og fá alvöru vefþjón (t.d. fyrir síur sem keyra á vefþjóninum).
+> Gagnaleiðslan (`bilagogn.xlsx` → JSON) er nákvæmlega sú sama og áður.
 
 ## Uppbygging verkefnisins
 
@@ -16,19 +21,21 @@ scripts/
   uppfaera.sh             Ein skipun sem keyrir forritið fyrir þig
 data/
   bilar.json, umbod.json, stillingar.json   (búið til – ekki breyta í hendi)
-index.html                Bílalisti með leit, síum og röðun
-gerd.html                  Ein gerð: tafla með öllum útfærslum
-samanburdur.html            Samanburður á allt að 4 útfærslum
-css/stil.css                Allt útlit
-js/                          Virkni síðunnar (sjá lýsingu neðar)
+app/
+  page.tsx                 Bílalisti (síður/röðun keyra á vefþjóninum)
+  bill/[id]/page.tsx        Ein gerð: tafla með öllum útfærslum
+  samanburdur/page.tsx      Samanburður á allt að 4 útfærslum
+  layout.tsx, globals.css   Grunnsíða, letur, litaþema
+components/               React-einingar (bílaspjöld, tafla, síur o.s.frv.)
+lib/                       Gagnalestur, tölusnið, íslensk heiti, samanburðar-karfa
 ```
 
-`js/`-skrárnar:
-- `gogn.js` – sækir JSON-gögnin
-- `snid.js` – íslenskt tölu- og dagsetningarsnið
-- `heiti.js` – varpar gagnagildum (t.d. `jepplingur`) í fallegt heiti (`Jepplingur`)
-- `karfa.js` – samanburðar­"karfan" (localStorage) og sjáanlega boxið neðst
-- `listi.js`, `gerd.js`, `samanburdur.js` – virkni hverrar síðu
+`lib/`-skrárnar:
+- `gogn.ts` – les JSON-gögnin af diski (á vefþjóninum)
+- `snid.ts` – íslenskt tölu- og dagsetningarsnið (handskrifað, ekki `Intl`)
+- `heiti.ts` – varpar gagnagildum (t.d. `jepplingur`) í fallegt heiti (`Jepplingur`)
+- `karfa.ts` – samanburðar­"karfan" (localStorage), notuð af `CompareBar`-einingunni
+- `sigta.ts` – sömu síu/röðunar-reglur og bílalistinn og samanburðurinn nota
 
 ## Að uppfæra gögnin
 
@@ -45,61 +52,53 @@ js/                          Virkni síðunnar (sjá lýsingu neðar)
    villur (t.d. vöntandi reit eða ógilt gildi) eru **engar skrár skrifaðar** –
    leiðréttu skrána og keyrðu aftur.
 3. Skoðaðu síðuna (næsti hluti) til að athuga að nýju bílarnir birtist rétt.
+4. Sendu breytinguna upp svo lifandi síðan uppfærist (sjá „Að setja
+   breytingar í loftið" hér að neðan).
 
 ## Að skoða síðuna hjá þér
 
-Vafrar leyfa ekki `fetch()` á skrár beint af diski, svo þú þarft örlítinn
-vefþjón – Python fylgir með á Mac, engin uppsetning þarf:
+Þarf Node.js (t.d. frá [nodejs.org](https://nodejs.org)). Í fyrsta skipti:
 
 ```bash
 cd ~/bilavefur
-python3 -m http.server 8000
+npm install
 ```
 
-Opnaðu síðan <http://localhost:8000> í vafranum.
+Til að keyra síðuna:
 
-**Ábending:** Vafrar geta skyndiminnst (cachað) gamla útgáfu af síðunni.
-Sjáist ekki nýjustu breytingarnar, endurlestu síðuna með „hard refresh"
-(Cmd+Shift+R á Mac) eða opnaðu í nýjum flipa.
+```bash
+npm run dev
+```
 
-## Að setja síðuna í loftið á Vercel (frítt)
+Opnaðu síðan <http://localhost:3000> í vafranum. Breytingar á kóða birtast
+sjálfkrafa (hot reload); breytingar á `bilagogn.xlsx` þarf að keyra
+`./scripts/uppfaera.sh` fyrir og endurlesa síðuna.
 
-Síðan þarf ekkert Node.js eða byggingarskref – Vercel þarf bara að vista og
-bjóða upp á skrárnar eins og þær eru. Einfaldasta leiðin er í gegnum GitHub:
+## Að setja breytingar í loftið
 
-1. **Búa til GitHub-safn (repository):**
-   - Farðu á [github.com/new](https://github.com/new) og búðu til nýtt,
-     tómt safn (t.d. `bilavefur`). Ekki hafa hak við „Add a README" – það er
-     þegar til hjá þér.
-2. **Senda verkefnið þangað** (keyrt einu sinni, í `bilavefur`-möppunni):
+Verkefnið er tengt við Vercel í gegnum GitHub – það er nóg að senda
+breytingar upp á `main`:
 
-   ```bash
-   git add -A
-   git commit -m "Fyrsta útgáfa af bílavefnum"
-   git remote add origin <slóðin sem GitHub gaf þér>
-   git branch -M main
-   git push -u origin main
-   ```
-3. **Tengja við Vercel:**
-   - Farðu á [vercel.com](https://vercel.com), skráðu þig inn með GitHub.
-   - Smelltu á „Add New… → Project" og veldu `bilavefur`-safnið.
-   - Undir „Framework Preset" veldu **Other** (engin bygging þarf).
-   - Skildu „Build Command" og „Output Directory" eftir auð/sjálfgefin.
-   - Smelltu á **Deploy**.
-4. Í hvert sinn sem þú vilt uppfæra vefinn (t.d. eftir að hafa keyrt
-   `./scripts/uppfaera.sh` með nýjum bílum):
+```bash
+git add -A
+git commit -m "Uppfæri bílagögn"
+git push
+```
 
-   ```bash
-   git add -A
-   git commit -m "Uppfæri bílagögn"
-   git push
-   ```
+Vercel byggir og uppfærir <https://nyrbill.vercel.app> sjálfkrafa á
+u.þ.b. 30–60 sekúndum. Framvindu má fylgjast með á
+[vercel.com/dashboard](https://vercel.com/dashboard) (Deployments-flipinn).
 
-   Vercel byggir og uppfærir síðuna sjálfkrafa á nokkrum sekúndum.
+### Ef þú þarft að tengja verkefnið við Vercel aftur (t.d. í nýjum aðgangi)
+
+1. Farðu á [vercel.com/new](https://vercel.com/new), skráðu þig inn með GitHub.
+2. Veldu „GitHub" undir „Import Git Repository" og leyfðu aðgang að
+   `nyrbill`-safninu (GitHub gæti beðið um tölvupóst-staðfestingu í fyrsta
+   sinn).
+3. Smelltu á **Import** við `nyrbill`, síðan **Deploy** — Vercel finnur
+   sjálfkrafa út að þetta er Next.js-verkefni, engar stillingar þarf.
 
 ## Að tengja lénið nyrbill.is
-
-Þegar verkefnið er komið í loftið á Vercel (skref hér að ofan):
 
 1. Í Vercel-verkefninu, farðu í **Settings → Domains**.
 2. Skráðu `nyrbill.is` (og `www.nyrbill.is` ef þú vilt bæði) og smelltu **Add**.
@@ -109,6 +108,13 @@ bjóða upp á skrárnar eins og þær eru. Einfaldasta leiðin er í gegnum Git
    hjá lénaskránni og settu þær inn eins og Vercel sýnir.
 4. Þetta getur tekið nokkrar mínútur til klukkustund að virka (DNS-dreifing).
    Vercel gefur síðunni sjálfkrafa HTTPS-vottorð þegar lénið er staðfest.
+
+## Að breyta útlitinu
+
+Litir, leturgerð og skuggar eru skilgreind sem CSS-breytur í
+`app/globals.css` (t.d. `--primary`, `--hero-from`/`--hero-to` fyrir
+hetju-borðann, `--success` fyrir rafbílastyrks-litinn). shadcn/ui-einingarnar
+sjálfar liggja í `components/ui/` og eru annars ósnertar.
 
 ## Um rafbílastyrkinn
 
