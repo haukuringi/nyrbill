@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { kronur } from "@/lib/snid";
 import { flokkurHeiti, orkugjafiHeiti } from "@/lib/heiti";
-import { FlokkurIcon } from "@/components/flokkur-icon";
+import { CarIllustration } from "@/components/car-illustration";
 import type { Gerd } from "@/lib/types";
 
 export function BillCard({ gerd }: { gerd: Gerd }) {
@@ -11,19 +11,15 @@ export function BillCard({ gerd }: { gerd: Gerd }) {
   return (
     <Link
       href={`/bill/${gerd.id}`}
-      className="group relative block overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl"
+      className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl"
     >
-      <span
-        className="absolute inset-y-0 left-0 w-1.5 opacity-80 transition-opacity group-hover:opacity-100"
-        style={{ background: "linear-gradient(180deg, var(--hero-via), var(--hero-glow-2))" }}
-        aria-hidden
-      />
-      <div
-        className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl"
-        style={{ background: "linear-gradient(135deg, var(--hero-via), var(--hero-glow-2))" }}
-      >
-        <FlokkurIcon flokkur={gerd.flokkur} className="h-6 w-6 text-white" />
-      </div>
+      <CarIllustration flokkur={gerd.flokkur} className="h-32 w-full" />
+      <div className="relative p-5">
+        <span
+          className="absolute inset-y-0 left-0 w-1.5 opacity-80 transition-opacity group-hover:opacity-100"
+          style={{ background: "linear-gradient(180deg, var(--hero-via), var(--hero-glow-2))" }}
+          aria-hidden
+        />
       <h2 className="text-xl font-extrabold tracking-tight">
         {gerd.merki} {gerd.gerd}
       </h2>
@@ -43,11 +39,12 @@ export function BillCard({ gerd }: { gerd: Gerd }) {
       </div>
       <div className="text-2xl font-black tracking-tight">{kronur(gerd.verd_fra)}</div>
       <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verð frá</div>
-      {einhverStyrkhaef && (
-        <div className="mt-2 inline-flex items-center rounded-lg bg-success-muted px-2.5 py-1 text-sm font-bold text-success">
-          Frá {kronur(gerd.verd_med_styrk_fra)} eftir styrk*
-        </div>
-      )}
+        {einhverStyrkhaef && (
+          <div className="mt-2 inline-flex items-center rounded-lg bg-success-muted px-2.5 py-1 text-sm font-bold text-success">
+            Frá {kronur(gerd.verd_med_styrk_fra)} eftir styrk*
+          </div>
+        )}
+      </div>
     </Link>
   );
 }
