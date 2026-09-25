@@ -2,7 +2,7 @@
 // birtingarheiti ("Jepplingur"). Öll leyfileg gildi koma úr "Listar"
 // flipanum í bilagogn.xlsx.
 
-const FLOKKUR_HEITI = {
+const FLOKKUR_HEITI: Record<string, string> = {
   smabill: "Smábíll",
   folksbill: "Fólksbíll",
   skutbill: "Skutbíll",
@@ -14,7 +14,7 @@ const FLOKKUR_HEITI = {
   sportbill: "Sportbíll",
 };
 
-const ORKUGJAFI_HEITI = {
+const ORKUGJAFI_HEITI: Record<string, string> = {
   rafmagn: "Rafmagn",
   vetni: "Vetni",
   tengiltvinn: "Tengiltvinn",
@@ -23,20 +23,16 @@ const ORKUGJAFI_HEITI = {
   disil: "Dísil",
 };
 
-const DRIF_HEITI = {
+const DRIF_HEITI: Record<string, string> = {
   framhjoladrif: "Framhjóladrif",
   afturhjoladrif: "Afturhjóladrif",
   fjorhjoladrif: "Fjórhjóladrif",
 };
 
-// Skilar íslenska heitinu, eða upprunalega gildinu ef það finnst ekki
-// í töflunni (t.d. nýtt gildi sem hefur ekki verið bætt við hér).
-function heiti(taflaHeiti, gildi) {
-  if (gildi == null) return "–";
-  const taflan = { flokkur: FLOKKUR_HEITI, orkugjafi: ORKUGJAFI_HEITI, drif: DRIF_HEITI }[taflaHeiti];
-  return (taflan && taflan[gildi]) || gildi;
-}
+export const flokkurHeiti = (gildi: string) => FLOKKUR_HEITI[gildi] ?? gildi;
+export const orkugjafiHeiti = (gildi: string) => ORKUGJAFI_HEITI[gildi] ?? gildi;
+export const drifHeiti = (gildi: string) => DRIF_HEITI[gildi] ?? gildi;
 
-function flokkurHeiti(gildi) { return heiti("flokkur", gildi); }
-function orkugjafiHeiti(gildi) { return heiti("orkugjafi", gildi); }
-function drifHeiti(gildi) { return heiti("drif", gildi); }
+export const FLOKKAR = Object.entries(FLOKKUR_HEITI);
+export const ORKUGJAFAR = Object.entries(ORKUGJAFI_HEITI);
+export const DRIF = Object.entries(DRIF_HEITI);

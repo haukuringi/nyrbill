@@ -1,2 +1,15 @@
 .DS_Store
 ~$*.xlsx
+
+# Next.js
+/node_modules
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# env
+.env*
