@@ -53,8 +53,9 @@ export function AdminApp() {
   const sb = supabaseVafri();
   const [lota, setLota] = useState<Session | null>(null);
   const [hladid, setHladid] = useState(false);
-  const [pruf, setPruf] = useState<{ id: string; admin: boolean } | null>(null);
-  const erAdmin = lota && pruf?.id === lota.user.id ? pruf.admin : null;
+  const [pruf, setPruf] = useState<{ id: string; admin: boolean; umbod: string | null } | null>(null);
+  const stada = lota && pruf?.id === lota.user.id ? pruf : null;
+  const erAdmin = stada ? stada.admin : null;
 
   useEffect(() => {
     sb.auth.getSession().then(({ data }) => {
@@ -69,10 +70,10 @@ export function AdminApp() {
   useEffect(() => {
     if (!notandaId) return;
     sb.from("stjornendur")
-      .select("user_id")
+      .select("user_id, umbod_id")
       .eq("user_id", notandaId)
       .maybeSingle()
-      .then(({ data }) => setPruf({ id: notandaId, admin: !!data }));
+      .then(({ data }) => setPruf({ id: notandaId, admin: !!data, umbod: data?.umbod_id ?? null }));
   }, [notandaId, sb]);
 
   if (!hladid) return <p className="text-muted-foreground">Hleð…</p>;
@@ -89,7 +90,7 @@ export function AdminApp() {
         </button>
       </div>
     );
-  return <Stjornbord netfang={lota.user.email ?? ""} />;
+  return <Stjornbord netfang={lota.user.email ?? ""} eigidUmbod={stada?.umbod ?? null} />;
 }
 
 function Innskraning() {
@@ -121,7 +122,8 @@ function Innskraning() {
   );
 }
 
-function Stjornbord({ netfang }: { netfang: string }) {
+// eigidUmbod = null -> yfirstjórnandi (sér og breytir öllu); annars bara eitt umboð.
+function Stjornbord({ netfang, eigidUmbod }: { netfang: string; eigidUmbod: string | null }) {
   const sb = supabaseVafri();
   const [gerdir, setGerdir] = useState<GerdRada[]>([]);
   const [umbod, setUmbod] = useState<UmbodRada[]>([]);
@@ -135,9 +137,11 @@ function Stjornbord({ netfang }: { netfang: string }) {
       sb.from("umbod").select("*").order("nafn"),
     ]);
     if (g.error || u.error) setSkilabod(`Villa við að sækja gögn: ${(g.error ?? u.error)!.message}`);
-    setGerdir((g.data as GerdRada[]) ?? []);
-    setUmbod((u.data as UmbodRada[]) ?? []);
-  }, [sb]);
+    const allar = (g.data as GerdRada[]) ?? [];
+    setGerdir(eigidUmbod ? allar.filter((x) => x.umbod_id === eigidUmbod) : allar);
+    const umbodAll = (u.data as UmbodRada[]) ?? [];
+    setUmbod(eigidUmbod ? umbodAll.filter((x) => x.id === eigidUmbod) : umbodAll);
+  }, [sb, eigidUmbod]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -154,7 +158,10 @@ function Stjornbord({ netfang }: { netfang: string }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">Innskráð(ur): {netfang}</p>
+        <p className="text-sm text-muted-foreground">
+          Innskráð(ur): {netfang} ·{" "}
+          {eigidUmbod ? `má bara breyta bílum umboðsins „${eigidUmbod}“` : "yfirstjórnandi (allt)"}
+        </p>
         <button className={hnappurLitill} onClick={() => sb.auth.signOut()}>
           Útskrá
         </button>
@@ -166,7 +173,7 @@ function Stjornbord({ netfang }: { netfang: string }) {
         </p>
       )}
 
-      <UmbodForm umbod={umbod} keyra={keyra} />
+      {!eigidUmbod && <UmbodForm umbod={umbod} keyra={keyra} />}
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">

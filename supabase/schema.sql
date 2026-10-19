@@ -44,20 +44,24 @@ create table if not exists public.stillingar (
   styrkur_heimild text not null
 );
 
--- Hverjir mega breyta gögnum. Bæta við með:
---   insert into public.stjornendur (user_id) select id from auth.users where email = 'netfang@dæmi.is';
+-- Hverjir mega breyta gögnum. umbod_id = null -> yfirstjórnandi (allt);
+-- umbod_id = 'bl' -> má bara breyta gerðum/útfærslum umboðsins 'bl'. Bæta við með:
+--   insert into public.stjornendur (user_id, umbod_id)
+--   select id, 'bl' from auth.users where email = 'netfang@dæmi.is';
 create table if not exists public.stjornendur (
-  user_id uuid primary key references auth.users(id) on delete cascade
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  umbod_id text references public.umbod(id)
 );
 
-create or replace function public.er_stjornandi()
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (select 1 from public.stjornendur where user_id = auth.uid());
+create or replace function public.er_yfirstjornandi()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.stjornendur where user_id = auth.uid() and umbod_id is null);
+$$;
+
+create or replace function public.ma_breyta_umbodi(u text)
+returns boolean language sql stable security definer set search_path = public as $$
+  select public.er_yfirstjornandi()
+      or exists (select 1 from public.stjornendur where user_id = auth.uid() and umbod_id = u);
 $$;
 
 alter table public.umbod enable row level security;
@@ -72,15 +76,16 @@ create policy "les gerdir" on public.gerdir for select using (true);
 create policy "les utfaerslur" on public.utfaerslur for select using (true);
 create policy "les stillingar" on public.stillingar for select using (true);
 
--- Bara stjórnendur mega skrifa.
+-- Skrifa: umboð og stillingar bara yfirstjórnandi; gerðir/útfærslur bara eigið umboð.
 create policy "skrifa umbod" on public.umbod for all
-  using (public.er_stjornandi()) with check (public.er_stjornandi());
-create policy "skrifa gerdir" on public.gerdir for all
-  using (public.er_stjornandi()) with check (public.er_stjornandi());
-create policy "skrifa utfaerslur" on public.utfaerslur for all
-  using (public.er_stjornandi()) with check (public.er_stjornandi());
+  using (public.er_yfirstjornandi()) with check (public.er_yfirstjornandi());
 create policy "skrifa stillingar" on public.stillingar for all
-  using (public.er_stjornandi()) with check (public.er_stjornandi());
+  using (public.er_yfirstjornandi()) with check (public.er_yfirstjornandi());
+create policy "skrifa gerdir" on public.gerdir for all
+  using (public.ma_breyta_umbodi(umbod_id)) with check (public.ma_breyta_umbodi(umbod_id));
+create policy "skrifa utfaerslur" on public.utfaerslur for all
+  using (exists (select 1 from public.gerdir g where g.id = gerd_id and public.ma_breyta_umbodi(g.umbod_id)))
+  with check (exists (select 1 from public.gerdir g where g.id = gerd_id and public.ma_breyta_umbodi(g.umbod_id)));
 
 -- Notandi má sjá sína eigin stjórnandastöðu (til að vita hvort admin-síðan á að opnast).
 create policy "les eigin stjornanda" on public.stjornendur for select

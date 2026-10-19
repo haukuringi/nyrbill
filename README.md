@@ -51,12 +51,22 @@ umboð, gerðir og útfærslur. Bara boðnir stjórnendur komast inn.
 **Að bjóða nýjum stjórnanda** (í Supabase-stjórnborðinu, `supabase.com/dashboard`):
 1. Authentication → Users → *Add user → Create new user* (netfang + lykilorð,
    hakaðu við *Auto Confirm User*).
-2. SQL Editor → keyrðu (skiptu um netfang):
+2. SQL Editor → keyrðu eitt af þessu (skiptu um netfang):
 
    ```sql
-   insert into public.stjornendur (user_id)
-   select id from auth.users where email = 'netfang@daemi.is';
+   -- Yfirstjórnandi: sér og breytir öllu (líka umboðum):
+   insert into public.stjornendur (user_id, umbod_id)
+   select id, null from auth.users where email = 'netfang@daemi.is';
+
+   -- Umboðsstjórnandi: má BARA breyta bílum eigin umboðs (t.d. 'bl'):
+   insert into public.stjornendur (user_id, umbod_id)
+   select id, 'bl' from auth.users where email = 'netfang@daemi.is';
    ```
+
+   Umboðið þarf að vera til fyrst (yfirstjórnandi bætir því við í `/admin`).
+   Umboðsstjórnandi sér bara sín eigin umboð/gerðir í stjórnborðinu og
+   gagnagrunnurinn (RLS) hafnar öllum tilraunum til að breyta gögnum annarra,
+   líka þótt einhver kalli beint á API-ið.
 
 Opin nýskráning er slökkt (Authentication → Sign In / Providers), svo enginn
 getur búið til aðgang sjálfur. Öryggið byggir á Row Level Security í
