@@ -68,6 +68,11 @@ umboð, gerðir og útfærslur. Bara boðnir stjórnendur komast inn.
    gagnagrunnurinn (RLS) hafnar öllum tilraunum til að breyta gögnum annarra,
    líka þótt einhver kalli beint á API-ið.
 
+**Innskráning og lykilorð:** boðnir notendur fá tölvupóst frá Supabase. Tenglar í honum
+fara á *Site URL* (`https://nyrbill.vercel.app/admin`, stillt í Supabase →
+Authentication → URL Configuration). Á `/admin` er hnappurinn *Gleymt lykilorð /
+fyrsta innskráning* (sendir tengil) og *Setja / breyta lykilorði* eftir innskráningu.
+
 Opin nýskráning er slökkt (Authentication → Sign In / Providers), svo enginn
 getur búið til aðgang sjálfur. Öryggið byggir á Row Level Security í
 gagnagrunninum (`supabase/schema.sql`): allir mega *lesa*, bara stjórnendur

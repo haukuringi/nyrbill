@@ -99,6 +99,21 @@ function Innskraning() {
   const [lykilord, setLykilord] = useState("");
   const [villa, setVilla] = useState("");
   const [bid, setBid] = useState(false);
+  const [tilkynning, setTilkynning] = useState("");
+
+  async function endurstilla() {
+    if (!netfang) {
+      setVilla("Skrifaðu netfangið fyrst.");
+      return;
+    }
+    setVilla("");
+    const { error } = await sb.auth.resetPasswordForEmail(netfang, { redirectTo: `${window.location.origin}/admin` });
+    setTilkynning(
+      error
+        ? `Villa: ${error.message}`
+        : "Ef netfangið er skráð færðu tölvupóst með tengli. Hann opnar stjórnborðið og þar setur þú nýtt lykilorð.",
+    );
+  }
 
   async function skra(e: React.FormEvent) {
     e.preventDefault();
@@ -115,9 +130,15 @@ function Innskraning() {
       <input className={reitur} type="email" placeholder="Netfang" value={netfang} onChange={(e) => setNetfang(e.target.value)} required />
       <input className={reitur} type="password" placeholder="Lykilorð" value={lykilord} onChange={(e) => setLykilord(e.target.value)} required />
       {villa && <p className="text-sm text-destructive">{villa}</p>}
-      <button className={hnappur} disabled={bid}>
-        {bid ? "Skrái inn…" : "Skrá inn"}
-      </button>
+      {tilkynning && <p className="text-sm text-muted-foreground">{tilkynning}</p>}
+      <div className="flex flex-wrap items-center gap-3">
+        <button className={hnappur} disabled={bid}>
+          {bid ? "Skrái inn…" : "Skrá inn"}
+        </button>
+        <button type="button" className="text-sm text-primary underline" onClick={endurstilla}>
+          Gleymt lykilorð / fyrsta innskráning
+        </button>
+      </div>
     </form>
   );
 }
@@ -166,6 +187,8 @@ function Stjornbord({ netfang, eigidUmbod }: { netfang: string; eigidUmbod: stri
           Útskrá
         </button>
       </div>
+
+      <LykilordForm />
 
       {skilabod && (
         <p className="rounded-lg border border-border bg-muted px-3 py-2 text-sm" role="status">
@@ -227,6 +250,47 @@ function Stjornbord({ netfang, eigidUmbod }: { netfang: string; eigidUmbod: stri
         ))}
       </section>
     </div>
+  );
+}
+
+function LykilordForm() {
+  const sb = supabaseVafri();
+  const [opid, setOpid] = useState(false);
+  const [lykilord, setLykilord] = useState("");
+  const [skilabod, setSkilabod] = useState("");
+
+  if (!opid)
+    return (
+      <button className={hnappurLitill} onClick={() => setOpid(true)}>
+        Setja / breyta lykilorði
+      </button>
+    );
+
+  return (
+    <form
+      className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        const { error } = await sb.auth.updateUser({ password: lykilord });
+        setSkilabod(error ? `Villa: ${error.message}` : "Lykilorð vistað.");
+        if (!error) setLykilord("");
+      }}
+    >
+      <input
+        className={`${reitur} max-w-[260px]`}
+        type="password"
+        minLength={8}
+        placeholder="Nýtt lykilorð (a.m.k. 8 stafir)"
+        value={lykilord}
+        onChange={(e) => setLykilord(e.target.value)}
+        required
+      />
+      <button className={hnappur}>Vista</button>
+      <button type="button" className={hnappurLitill} onClick={() => setOpid(false)}>
+        Loka
+      </button>
+      {skilabod && <span className="text-sm text-muted-foreground">{skilabod}</span>}
+    </form>
   );
 }
 
