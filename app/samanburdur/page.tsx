@@ -4,9 +4,11 @@ import { SiteFooter } from "@/components/site-footer";
 import { SamanburdurClient } from "@/components/samanburdur-client";
 import { saekjaBila, saekjaStillingar, utfaerslaUppfletting } from "@/lib/gogn";
 
-export default function SamanburdurSida() {
-  const bilar = saekjaBila();
-  const stillingar = saekjaStillingar();
+export const dynamic = "force-dynamic";
+
+export default async function SamanburdurSida() {
+  const bilar = await saekjaBila();
+  const stillingar = await saekjaStillingar();
   const uppfletting = Object.fromEntries(utfaerslaUppfletting(bilar));
 
   return (

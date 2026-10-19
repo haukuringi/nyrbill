@@ -4,6 +4,8 @@ import { BilaListi } from "@/components/bila-listi";
 import { saekjaBila, saekjaUmbod, saekjaStillingar } from "@/lib/gogn";
 import { sianUrSlod, sigtaOgRadaBila } from "@/lib/sigta";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home({
   searchParams,
 }: {
@@ -12,9 +14,9 @@ export default async function Home({
   const sp = await searchParams;
   const sian = sianUrSlod(sp);
 
-  const bilar = saekjaBila();
-  const umbod = saekjaUmbod();
-  const stillingar = saekjaStillingar();
+  const bilar = await saekjaBila();
+  const umbod = await saekjaUmbod();
+  const stillingar = await saekjaStillingar();
   const sigtad = sigtaOgRadaBila(bilar, sian);
 
   const nyjastaUppfaert = bilar.reduce<string | null>(

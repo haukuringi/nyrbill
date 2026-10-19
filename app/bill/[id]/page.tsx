@@ -7,13 +7,11 @@ import { StyrkurSkyring } from "@/components/styrkur-skyring";
 import { saekjaBila, saekjaUmbod, saekjaStillingar } from "@/lib/gogn";
 import { flokkurHeiti } from "@/lib/heiti";
 
-export async function generateStaticParams() {
-  return saekjaBila().map((g) => ({ id: g.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function BillSida({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const gerd = saekjaBila().find((g) => g.id === id);
+  const gerd = (await saekjaBila()).find((g) => g.id === id);
 
   if (!gerd) {
     return (
@@ -32,8 +30,8 @@ export default async function BillSida({ params }: { params: Promise<{ id: strin
     );
   }
 
-  const umbodListi = saekjaUmbod();
-  const stillingar = saekjaStillingar();
+  const umbodListi = await saekjaUmbod();
+  const stillingar = await saekjaStillingar();
   const umbod = umbodListi.find((u) => u.id === gerd.umbod);
   const einhverStyrkhaef = gerd.utfaerslur.some((u) => u.styrkhaef);
 

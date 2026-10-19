@@ -4,13 +4,13 @@
 sjálfkrafa við hvert `git push` á `main`).
 
 Vefsíða sem sýnir nýja bíla á söluskrá á Íslandi, með verðlistum og
-samanburði. Byggð í Next.js + Tailwind CSS + shadcn/ui. Gögnin koma úr
-`bilagogn.xlsx` og eru breytt í JSON-skrár sem síðan les.
+samanburði. Byggð í Next.js + Tailwind CSS + shadcn/ui. Gögnin búa í Supabase og eru
+breytt í gegnum `/admin`.
 
 > Fyrsta útgáfa af þessari síðu var hrein HTML/CSS/JavaScript (engin
 > bygging). Hún var endurbyggð í Next.js til að nýta tilbúnar shadcn/21st.dev
 > einingar og fá alvöru vefþjón (t.d. fyrir síur sem keyra á vefþjóninum).
-> Gagnaleiðslan (`bilagogn.xlsx` → JSON) er nákvæmlega sú sama og áður.
+> Gögnin voru áður í Excel (`bilagogn.xlsx` → JSON) en eru nú í Supabase.
 
 ## Uppbygging verkefnisins
 
@@ -31,29 +31,51 @@ lib/                       Gagnalestur, tölusnið, íslensk heiti, samanburðar
 ```
 
 `lib/`-skrárnar:
-- `gogn.ts` – les JSON-gögnin af diski (á vefþjóninum)
+- `gogn.ts` – les gögnin úr Supabase (á vefþjóninum)
+- `supabase.ts` – Supabase-biðlarar (þjónn og vafri)
+- `slug.ts` – býr til id úr texta (t.d. `Kia EV3` → `kia-ev3`)
 - `snid.ts` – íslenskt tölu- og dagsetningarsnið (handskrifað, ekki `Intl`)
 - `heiti.ts` – varpar gagnagildum (t.d. `jepplingur`) í fallegt heiti (`Jepplingur`)
 - `karfa.ts` – samanburðar­"karfan" (localStorage), notuð af `CompareBar`-einingunni
 - `sigta.ts` – sömu síu/röðunar-reglur og bílalistinn og samanburðurinn nota
 
-## Að uppfæra gögnin
+## Gögnin: Supabase + stjórnborð
 
-1. Opnaðu `bilagogn.xlsx` (Excel, Numbers eða Google Sheets) og bættu við/breyttu
-   línum í `Útfærslur`-flipanum. Ein lína = ein útfærsla af einni gerð.
-   Vistaðu skrána með sama nafni og á sama stað (rótin á verkefninu).
-2. Keyrðu í flugstöðinni (terminal), í `bilavefur`-möppunni:
+Bílagögnin búa í **Supabase** (Postgres-gagnagrunnur, verkefnið `nyrbill`).
+Síðan les þau við hverja beiðni, svo breytingar birtast strax.
 
-   ```bash
-   ./scripts/uppfaera.sh
+**Að bæta við / breyta bílum:** farðu á `/admin` (t.d.
+<https://nyrbill.vercel.app/admin>), skráðu þig inn og notaðu formin:
+umboð, gerðir og útfærslur. Bara boðnir stjórnendur komast inn.
+
+**Að bjóða nýjum stjórnanda** (í Supabase-stjórnborðinu, `supabase.com/dashboard`):
+1. Authentication → Users → *Add user → Create new user* (netfang + lykilorð,
+   hakaðu við *Auto Confirm User*).
+2. SQL Editor → keyrðu (skiptu um netfang):
+
+   ```sql
+   insert into public.stjornendur (user_id)
+   select id from auth.users where email = 'netfang@daemi.is';
    ```
 
-   Þetta les `bilagogn.xlsx` og skrifar nýjar `data/*.json` skrár. Finnist
-   villur (t.d. vöntandi reit eða ógilt gildi) eru **engar skrár skrifaðar** –
-   leiðréttu skrána og keyrðu aftur.
-3. Skoðaðu síðuna (næsti hluti) til að athuga að nýju bílarnir birtist rétt.
-4. Sendu breytinguna upp svo lifandi síðan uppfærist (sjá „Að setja
-   breytingar í loftið" hér að neðan).
+Opin nýskráning er slökkt (Authentication → Sign In / Providers), svo enginn
+getur búið til aðgang sjálfur. Öryggið byggir á Row Level Security í
+gagnagrunninum (`supabase/schema.sql`): allir mega *lesa*, bara stjórnendur
+mega *skrifa* – sá opinberi lykill sem er í vafranum getur ekki breytt neinu
+án innskráðs stjórnanda.
+
+**Umhverfisbreytur** (`.env.local` hjá þér og *Environment Variables* á Vercel):
+`NEXT_PUBLIC_SUPABASE_URL` og `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (opinber
+lykill, öruggt í vafra). Notaðu **aldrei** `secret`/`service_role`-lykilinn í
+vafra eða kóða.
+
+### Excel sem innflutningsleið (valfrjálst)
+
+`bilagogn.xlsx` + `scripts/xlsx_i_json.py` gera enn `data/*.json`. Til að
+hlaða þeim inn í gagnagrunninn: `python3 scripts/json_i_sql.py` býr til
+`supabase/seed.sql` sem þú keyrir í SQL Editor (þetta var notað til að flytja
+fyrstu 22 gerðirnar). Athugaðu að `seed.sql` bætir við/uppfærir ekki yfir
+stjórnborðs-breytingar nema sama `id` sé notað (`on conflict do nothing`).
 
 ## Að skoða síðuna hjá þér
 

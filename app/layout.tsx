@@ -11,8 +11,10 @@ export const metadata: Metadata = {
   description: "Verðlisti og samanburður á nýjum bílum í boði hjá íslenskum bílaumboðum.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const bilar = saekjaBila();
+export const dynamic = "force-dynamic";
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const bilar = await saekjaBila();
   const labels: Record<string, string> = {};
   for (const gerd of bilar) {
     for (const utf of gerd.utfaerslur) {
