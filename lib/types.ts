@@ -28,6 +28,7 @@ export interface Gerd {
   verd_fra: number;
   verd_med_styrk_fra: number;
   uppfaert: string;
+  mynd_url: string | null;
 }
 
 export interface Umbod {

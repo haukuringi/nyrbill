@@ -31,6 +31,7 @@ interface GerdRada {
   umbod_id: string;
   flokkur: string;
   arsgerd: number;
+  mynd_slod: string | null;
   utfaerslur: UtfRada[];
 }
 interface UmbodRada {
@@ -45,6 +46,11 @@ const hnappur =
   "rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50";
 const hnappurLitill =
   "rounded-md border border-border bg-card px-2.5 py-1 text-xs font-medium hover:bg-muted";
+
+const MYND_ENDING: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
+const MYND_HAMARK = 5 * 1024 * 1024;
+const myndaUrl = (slod: string) =>
+  `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bilamyndir/${slod}`;
 
 const tala = (v: string) => (v.trim() === "" ? null : Number(v.replace(",", ".")));
 const idag = () => new Date().toISOString().slice(0, 10);
@@ -211,12 +217,31 @@ function Stjornbord({ netfang, eigidUmbod }: { netfang: string; eigidUmbod: stri
             umbod={umbod}
             upphaf={gerdBreyta === "ny" ? null : gerdBreyta}
             afboka={() => setGerdBreyta(null)}
-            vista={async (r, nyr) => {
+            vista={async (r, nyr, mynd) => {
+              const gamla = gerdBreyta !== "ny" && gerdBreyta ? gerdBreyta.mynd_slod : null;
+              let nySlod: string | null | undefined; // undefined = mynd óbreytt
+              if (mynd.skra) {
+                const ending = MYND_ENDING[mynd.skra.type];
+                nySlod = `${r.umbod_id}/${r.id}-${Date.now()}.${ending}`;
+                const up = await sb.storage.from("bilamyndir").upload(nySlod, mynd.skra, { contentType: mynd.skra.type });
+                if (up.error) {
+                  setSkilabod(`Villa við upphleðslu myndar: ${up.error.message}`);
+                  return;
+                }
+              } else if (mynd.fjarlaegja) {
+                nySlod = null;
+              }
+              const rada = nySlod === undefined ? r : { ...r, mynd_slod: nySlod };
               const ok = await keyra(
-                nyr ? sb.from("gerdir").insert(r) : sb.from("gerdir").update(r).eq("id", r.id),
+                nyr ? sb.from("gerdir").insert(rada) : sb.from("gerdir").update(rada).eq("id", r.id),
                 nyr ? "Gerð bætt við." : "Gerð uppfærð.",
               );
-              if (ok) setGerdBreyta(null);
+              if (ok) {
+                if (gamla && nySlod !== undefined) await sb.storage.from("bilamyndir").remove([gamla]);
+                setGerdBreyta(null);
+              } else if (mynd.skra && nySlod) {
+                await sb.storage.from("bilamyndir").remove([nySlod]);
+              }
             }}
           />
         )}
@@ -335,8 +360,16 @@ function GerdForm({
   umbod: UmbodRada[];
   upphaf: GerdRada | null;
   afboka: () => void;
-  vista: (r: { id: string; merki: string; gerd: string; umbod_id: string; flokkur: string; arsgerd: number }, nyr: boolean) => Promise<void>;
+  vista: (
+    r: { id: string; merki: string; gerd: string; umbod_id: string; flokkur: string; arsgerd: number },
+    nyr: boolean,
+    mynd: { skra: File | null; fjarlaegja: boolean },
+  ) => Promise<void>;
 }) {
+  const [skra, setSkra] = useState<File | null>(null);
+  const [fjarlaegja, setFjarlaegja] = useState(false);
+  const [leyfi, setLeyfi] = useState(false);
+  const [myndVilla, setMyndVilla] = useState("");
   const [merki, setMerki] = useState(upphaf?.merki ?? "");
   const [gerd, setGerd] = useState(upphaf?.gerd ?? "");
   const [umbodId, setUmbodId] = useState(upphaf?.umbod_id ?? umbod[0]?.id ?? "");
@@ -359,6 +392,7 @@ function GerdForm({
             arsgerd: ar,
           },
           !upphaf,
+          { skra, fjarlaegja },
         );
       }}
     >
@@ -380,6 +414,51 @@ function GerdForm({
         ))}
       </select>
       <input className={reitur} type="number" placeholder="Árgerð" value={arsgerd} onChange={(e) => setArsgerd(e.target.value)} required />
+
+      <div className="space-y-2 rounded-lg border border-border bg-card p-3 sm:col-span-2">
+        <p className="text-sm font-semibold">Mynd af gerðinni (valfrjálst)</p>
+        {upphaf?.mynd_slod && !skra && !fjarlaegja && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={myndaUrl(upphaf.mynd_slod)} alt="Núverandi mynd" className="h-28 rounded-md border border-border object-contain" />
+        )}
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="block w-full text-sm"
+          onChange={(e) => {
+            const f = e.target.files?.[0] ?? null;
+            setMyndVilla("");
+            if (f && !MYND_ENDING[f.type]) {
+              setMyndVilla("Aðeins JPG, PNG eða WebP.");
+              e.target.value = "";
+              setSkra(null);
+              return;
+            }
+            if (f && f.size > MYND_HAMARK) {
+              setMyndVilla("Myndin er stærri en 5 MB.");
+              e.target.value = "";
+              setSkra(null);
+              return;
+            }
+            setSkra(f);
+          }}
+        />
+        <p className="text-xs text-muted-foreground">JPG, PNG eða WebP, mest 5 MB. Bakgrunnslaus PNG virkar vel.</p>
+        {myndVilla && <p className="text-sm text-destructive">{myndVilla}</p>}
+        {skra && (
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" className="mt-1" checked={leyfi} onChange={(e) => setLeyfi(e.target.checked)} required />
+            <span>Ég staðfesti að umboðið eigi höfundarréttinn að þessari mynd eða hafi leyfi til að birta hana á vefsíðunni.</span>
+          </label>
+        )}
+        {upphaf?.mynd_slod && !skra && (
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={fjarlaegja} onChange={(e) => setFjarlaegja(e.target.checked)} />
+            Fjarlægja núverandi mynd
+          </label>
+        )}
+      </div>
+
       <div className="flex gap-2 sm:col-span-2">
         <button className={hnappur}>Vista</button>
         <button type="button" className={hnappurLitill} onClick={afboka}>

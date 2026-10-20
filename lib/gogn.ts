@@ -31,7 +31,13 @@ interface GerdRada {
   umbod_id: string;
   flokkur: string;
   arsgerd: number;
+  mynd_slod: string | null;
   utfaerslur: UtfaerslaRada[];
+}
+
+// Opin slóð á mynd í Supabase Storage (bucket 'bilamyndir' er opinn til lestrar).
+export function myndaSlod(slod: string): string {
+  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/bilamyndir/${slod}`;
 }
 
 export const saekjaStillingar = cache(async (): Promise<Stillingar> => {
@@ -100,6 +106,7 @@ export const saekjaBila = cache(async (): Promise<Gerd[]> => {
         verd_fra: utfaerslur[0].verd,
         verd_med_styrk_fra: Math.min(...utfaerslur.map((u) => u.verd_med_styrk)),
         uppfaert: utfaerslur.map((u) => u.uppfaert).sort().at(-1)!,
+        mynd_url: g.mynd_slod ? myndaSlod(g.mynd_slod) : null,
       };
     });
 

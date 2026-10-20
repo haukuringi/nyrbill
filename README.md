@@ -84,6 +84,15 @@ mega *skrifa* – sá opinberi lykill sem er í vafranum getur ekki breytt neinu
 lykill, öruggt í vafra). Notaðu **aldrei** `secret`/`service_role`-lykilinn í
 vafra eða kóða.
 
+### Myndir af gerðum
+
+Í `/admin` má hlaða upp mynd (JPG/PNG/WebP, mest 5 MB) þegar gerð er búin til
+eða breytt. Umboðið staðfestir með hakreit að það eigi myndina eða hafi leyfi
+til að birta hana. Myndirnar liggja í Supabase Storage (`bilamyndir/<umboð>/…`,
+opinn til lestrar); umboðsstjórnandi getur bara sett inn í möppu eigin umboðs
+(sjá `supabase/migration-myndir.sql`). Gerð án myndar sýnir almenna
+sýnishorns-teikningu.
+
 ### Excel sem innflutningsleið (valfrjálst)
 
 `bilagogn.xlsx` + `scripts/xlsx_i_json.py` gera enn `data/*.json`. Til að

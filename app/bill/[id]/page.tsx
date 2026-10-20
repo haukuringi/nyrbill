@@ -54,6 +54,17 @@ export default async function BillSida({ params }: { params: Promise<{ id: strin
           )}
         </p>
 
+        {gerd.mynd_url && (
+          <div className="mb-4 overflow-hidden rounded-xl border border-border bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={gerd.mynd_url}
+              alt={`${gerd.merki} ${gerd.gerd}`}
+              className="mx-auto max-h-72 w-full object-contain"
+            />
+          </div>
+        )}
+
         <div className="mb-4">
           <SpecTable gerd={gerd} />
         </div>

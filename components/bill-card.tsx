@@ -13,7 +13,19 @@ export function BillCard({ gerd }: { gerd: Gerd }) {
       href={`/bill/${gerd.id}`}
       className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-2xl"
     >
-      <CarIllustration flokkur={gerd.flokkur} className="h-32 w-full" />
+      {gerd.mynd_url ? (
+        <div className="h-36 w-full bg-muted">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={gerd.mynd_url}
+            alt={`${gerd.merki} ${gerd.gerd}`}
+            loading="lazy"
+            className="h-full w-full object-contain"
+          />
+        </div>
+      ) : (
+        <CarIllustration flokkur={gerd.flokkur} className="h-32 w-full" />
+      )}
       <div className="relative p-5">
         <span
           className="absolute inset-y-0 left-0 w-1.5 opacity-80 transition-opacity group-hover:opacity-100"
