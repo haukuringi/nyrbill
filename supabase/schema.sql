@@ -41,7 +41,10 @@ create table if not exists public.stillingar (
   id integer primary key default 1 check (id = 1),
   styrkur_upphaed integer not null,
   styrkur_verdthak integer not null,
-  styrkur_heimild text not null
+  styrkur_heimild text not null,
+  tilkynning_texti text,
+  tilkynning_slod text,
+  tilkynning_virk boolean not null default false
 );
 
 -- Hverjir mega breyta gögnum. umbod_id = null -> yfirstjórnandi (allt);

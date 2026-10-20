@@ -93,6 +93,13 @@ opinn til lestrar); umboðsstjórnandi getur bara sett inn í möppu eigin umbo�
 (sjá `supabase/migration-myndir.sql`). Gerð án myndar sýnir almenna
 sýnishorns-teikningu.
 
+### Tilkynning efst á síðunni
+
+Yfirstjórnandi stýrir borðanum efst í `/admin` → „Tilkynning efst á síðunni“
+(texti, tengill á heimild, hakreitur til að sýna/fela). Gestir geta lokað
+borðanum með ×; það er munað í vafranum þar til textinn breytist. Dálkarnir
+eru í `stillingar` (sjá `supabase/migration-tilkynning.sql`).
+
 ### Excel sem innflutningsleið (valfrjálst)
 
 `bilagogn.xlsx` + `scripts/xlsx_i_json.py` gera enn `data/*.json`. Til að

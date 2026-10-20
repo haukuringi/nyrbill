@@ -50,6 +50,10 @@ export const saekjaStillingar = cache(async (): Promise<Stillingar> => {
       heimild: data.styrkur_heimild,
     },
     buid_til: new Date().toISOString(),
+    tilkynning:
+      data.tilkynning_virk && data.tilkynning_texti
+        ? { texti: data.tilkynning_texti, slod: data.tilkynning_slod || null }
+        : null,
   };
 });
 

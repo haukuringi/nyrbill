@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { CompareBar } from "@/components/compare-bar";
-import { saekjaBila } from "@/lib/gogn";
+import { TilkynningBordi } from "@/components/tilkynning-bordi";
+import { saekjaBila, saekjaStillingar } from "@/lib/gogn";
 
 const inter = Inter({ variable: "--font-sans", subsets: ["latin"] });
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const bilar = await saekjaBila();
+  const [bilar, stillingar] = await Promise.all([saekjaBila(), saekjaStillingar()]);
   const labels: Record<string, string> = {};
   for (const gerd of bilar) {
     for (const utf of gerd.utfaerslur) {
@@ -25,6 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="is" className={`${inter.variable} antialiased`}>
       <body className="min-h-full bg-background text-foreground">
+        {stillingar.tilkynning && <TilkynningBordi texti={stillingar.tilkynning.texti} slod={stillingar.tilkynning.slod} />}
         {children}
         <CompareBar labels={labels} />
       </body>

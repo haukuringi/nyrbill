@@ -44,4 +44,5 @@ export interface Stillingar {
     heimild: string;
   };
   buid_til: string;
+  tilkynning: { texti: string; slod: string | null } | null;
 }

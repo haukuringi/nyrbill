@@ -202,6 +202,8 @@ function Stjornbord({ netfang, eigidUmbod }: { netfang: string; eigidUmbod: stri
         </p>
       )}
 
+      {!eigidUmbod && <TilkynningForm keyra={keyra} />}
+
       {!eigidUmbod && <UmbodForm umbod={umbod} keyra={keyra} />}
 
       <section className="space-y-3">
@@ -320,6 +322,56 @@ function LykilordForm() {
 }
 
 type Keyra = (p: PromiseLike<{ error: { message: string } | null }>, ok: string) => Promise<boolean>;
+
+function TilkynningForm({ keyra }: { keyra: Keyra }) {
+  const sb = supabaseVafri();
+  const [texti, setTexti] = useState("");
+  const [slod, setSlod] = useState("");
+  const [virk, setVirk] = useState(false);
+  const [hladid, setHladid] = useState(false);
+
+  useEffect(() => {
+    sb.from("stillingar")
+      .select("tilkynning_texti, tilkynning_slod, tilkynning_virk")
+      .eq("id", 1)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setTexti(data.tilkynning_texti ?? "");
+          setSlod(data.tilkynning_slod ?? "");
+          setVirk(data.tilkynning_virk);
+        }
+        setHladid(true);
+      });
+  }, [sb]);
+
+  return (
+    <section className="space-y-2 rounded-xl border border-border bg-card p-4 shadow-sm">
+      <h2 className="text-lg font-bold">Tilkynning efst á síðunni</h2>
+      <form
+        className="space-y-2"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await keyra(
+            sb
+              .from("stillingar")
+              .update({ tilkynning_texti: texti.trim() || null, tilkynning_slod: slod.trim() || null, tilkynning_virk: virk })
+              .eq("id", 1),
+            "Tilkynning vistuð.",
+          );
+        }}
+      >
+        <textarea className={reitur} rows={3} placeholder="Texti tilkynningar" value={texti} onChange={(e) => setTexti(e.target.value)} disabled={!hladid} />
+        <input className={reitur} placeholder="Tengill á heimild (https://…)" value={slod} onChange={(e) => setSlod(e.target.value)} disabled={!hladid} />
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={virk} onChange={(e) => setVirk(e.target.checked)} disabled={!hladid} />
+          Sýna tilkynninguna á vefnum
+        </label>
+        <button className={hnappur} disabled={!hladid}>Vista tilkynningu</button>
+      </form>
+    </section>
+  );
+}
 
 function UmbodForm({ umbod, keyra }: { umbod: UmbodRada[]; keyra: Keyra }) {
   const sb = supabaseVafri();
