@@ -21,7 +21,7 @@ interface Reitur {
 const REITIR: Reitur[] = [
   { titill: "Verð", stefna: "min", gildi: (u) => u.verd, birta: (u) => kronur(u.verd) },
   {
-    titill: "Verð eftir rafbílastyrk*",
+    titill: "Verð með rafbílastyrk*",
     stefna: "min",
     gildi: (u) => (u.styrkhaef ? u.verd_med_styrk : null),
     birta: (u) => (u.styrkhaef ? kronur(u.verd_med_styrk) : "–"),

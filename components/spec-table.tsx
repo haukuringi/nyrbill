@@ -19,7 +19,7 @@ export function SpecTable({ gerd }: { gerd: Gerd }) {
             {[
               "Útfærsla",
               "Verð",
-              einhverStyrkhaef ? "Eftir rafbílastyrk*" : null,
+              einhverStyrkhaef ? "Með rafbílastyrk*" : null,
               "Orkugjafi",
               "Drif",
               "Hestöfl",

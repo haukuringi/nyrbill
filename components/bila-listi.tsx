@@ -183,7 +183,7 @@ export function BilaListi({
             onChange={(e) => samstundis({ ...staedi, eftirStyrk: e.target.checked })}
             className="h-3.5 w-3.5 accent-primary"
           />
-          Sýna verð eftir rafbílastyrk (breytir röðun og verðbili)
+          Sýna verð með rafbílastyrk (breytir röðun og verðbili)
         </label>
       </div>
 
