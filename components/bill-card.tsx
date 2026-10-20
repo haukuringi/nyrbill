@@ -53,7 +53,7 @@ export function BillCard({ gerd }: { gerd: Gerd }) {
       <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verð frá</div>
         {einhverStyrkhaef && (
           <div className="mt-2 inline-flex items-center rounded-lg bg-success-muted px-2.5 py-1 text-sm font-bold text-success">
-            Frá {kronur(gerd.verd_med_styrk_fra)} eftir styrk*
+            Frá {kronur(gerd.verd_med_styrk_fra)} með styrk*
           </div>
         )}
       </div>
